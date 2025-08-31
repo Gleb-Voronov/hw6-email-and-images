@@ -1,10 +1,10 @@
 import Contact from "../models/contact.js";
 import createHttpError from "http-errors";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 export const getAllContacts = async ({ userId, page = 1, perPage = 10, sortBy = "name", sortOrder = "asc", filter = {} }) => {
   const skip = (page - 1) * perPage;
   const sortDirection = sortOrder === "desc" ? -1 : 1;
-
 
   const finalFilter = { ...filter, userId };
 
@@ -31,12 +31,24 @@ export const getContactById = async (id, userId) => {
   return contact;
 };
 
-export const createContact = async (contactData) => {
-  return Contact.create(contactData);
+export const createContact = async (contactData, file) => {
+  let photoUrl = null;
+  if (file) {
+    photoUrl = await uploadToCloudinary(file);
+  }
+  return Contact.create({ ...contactData, photo: photoUrl });
 };
 
-export const updateContact = async (id, userId, updateData) => {
-  const updatedContact = await Contact.findOneAndUpdate({ _id: id, userId }, updateData, { new: true });
+export const updateContact = async (id, userId, updateData, file) => {
+  let photoUrl = null;
+  if (file) {
+    photoUrl = await uploadToCloudinary(file);
+  }
+  const updatedContact = await Contact.findOneAndUpdate(
+    { _id: id, userId },
+    { ...updateData, ...(photoUrl && { photo: photoUrl }) },
+    { new: true }
+  );
   if (!updatedContact) throw createHttpError(404, "Contact not found");
   return updatedContact;
 };
