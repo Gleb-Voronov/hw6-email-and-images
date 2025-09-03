@@ -5,35 +5,29 @@ import {
     refreshSession, 
     logoutSession, 
     loginUser, 
-    logoutSessionsByUserId,
     sendResetPasswordEmail,
     resetPasswordWithToken
 } from '../services/auth.js';
+
 
 export const registerUserController = async (req, res, next) => {
     try {
         const user = await registerUser(req.body);
 
-        await logoutSessionsByUserId(user._id); 
-
-        const { accessToken, refreshToken } = await createSession(user._id);
-        const isProduction = process.env.NODE_ENV === 'production';
-
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: 'strict',
-        });
-
         res.status(201).json({
             status: 201,
             message: 'Successfully registered a user!',
-            data: { user, accessToken },
+            data: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
         });
     } catch (err) {
         next(err);
     }
 };
+
 
 export const refreshUserController = async (req, res, next) => {
     try {
@@ -65,6 +59,7 @@ export const refreshUserController = async (req, res, next) => {
     }
 };
 
+
 export const logoutController = async (req, res, next) => {
     try {
         const refreshToken = req.cookies?.refreshToken;
@@ -73,10 +68,8 @@ export const logoutController = async (req, res, next) => {
             throw createHttpError(401, 'No refresh token provided');
         }
 
-        
         await logoutSession(refreshToken);
 
-        
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -89,6 +82,7 @@ export const logoutController = async (req, res, next) => {
     }
 };
 
+
 export const loginUserController = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -97,7 +91,6 @@ export const loginUserController = async (req, res, next) => {
 
         const isProduction = process.env.NODE_ENV === 'production';
 
-        
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: isProduction, 
@@ -115,6 +108,7 @@ export const loginUserController = async (req, res, next) => {
     }
 };
 
+
 export const sendResetEmailController = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -131,8 +125,8 @@ export const sendResetEmailController = async (req, res, next) => {
     }
 };
 
-export const resetPasswordController = async (req, res, next) => { 
 
+export const resetPasswordController = async (req, res, next) => { 
     try {
         const { token, password } = req.body;
 
@@ -145,6 +139,5 @@ export const resetPasswordController = async (req, res, next) => {
         });
     } catch (error) {
         next(error);
-
     }
 };

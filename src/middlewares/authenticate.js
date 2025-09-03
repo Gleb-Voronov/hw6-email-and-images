@@ -24,7 +24,7 @@ export const authenticate = async (req, res, next) => {
             throw createHttpError(401, 'Invalid authorization format');
         }
 
-        const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+        const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_SECRET;
 
         let payload;
         try {
