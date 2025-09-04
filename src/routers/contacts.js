@@ -5,7 +5,7 @@ import {
   createContactController,
   updateContactController,
   deleteContactController,
-  upsertContactController
+  upsertContactController,
 } from '../controllers/contacts.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { createContactSchema, patchContactSchema } from '../validation/contacts.js';
@@ -13,7 +13,6 @@ import { validateBody } from '../middlewares/validateBody.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import { authenticate } from '../middlewares/authenticate.js';
 import { upload } from '../middlewares/multer.js';
-import { updateContactSchema } from "../db/models/contact.js"
 
 const router = Router();
 
@@ -24,7 +23,7 @@ router.get('/:contactId', isValidId, ctrlWrapper(getContactById));
 
 router.post(
   '/',
-  upload.single('photo'),
+  upload.single('photo'), 
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
 );
@@ -32,7 +31,7 @@ router.post(
 router.put(
   '/:contactId',
   isValidId,
-  upload.single('photo'),
+  upload.single('photo'), 
   validateBody(createContactSchema),
   ctrlWrapper(upsertContactController),
 );
@@ -40,7 +39,7 @@ router.put(
 router.patch(
   '/:contactId',
   isValidId,
-  upload.single('photo'),
+  upload.single('photo'), 
   validateBody(patchContactSchema),
   ctrlWrapper(updateContactController),
 );

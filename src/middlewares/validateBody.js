@@ -1,6 +1,8 @@
 
 
 export const validateBody = (schema) => async (req, res, next) => {
+    console.log('REQ.BODY:', req.body);
+console.log('REQ.FILE:', req.file);
     try {
         await schema.validateAsync(req.body, { abortEarly: false });
         next();
